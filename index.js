@@ -35,16 +35,3 @@ app.get('/install', (req,res) =>{
     return res.status(400).send('Something went wrong. Double check that you entered your shop correctly.');
   }
 });
-
-app.get('/callback',(req,res)=>{
-  const {shop, hmac, code, state} = req.query;
-  const stateCookie = cookie.parse(req.headers.cookie).state;
-  if (state !== stateCookie){
-    return res.status(403).send('Origin of request cannot be verified');
-  }
-  if (shop && hmac && code){
-    const map = Object.assign({}, req.query)
-    delete map['hmac'];
-    delete map['signature'];
-  }
-});
