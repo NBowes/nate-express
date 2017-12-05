@@ -19,3 +19,19 @@ app.get('/', (req,res) => {
 app.listen('4567',() =>{
   console.log('App listening on 4567!');
 })
+
+app.get('/install', (req,res) =>{
+  const shop = req.query.shop;
+  if(shop){
+    const state = nonce();
+    const scope = 'write_products';
+    const redirectUri = `${appURL}/callback`
+    const installUrl = `https://${shop}/admin/oauth/authorize?client_id=${apiKey}\
+                        &scope=${scope}&state=${state}&redirect_uri=${redirectUri}`
+
+    res.cookie('state',state);
+    res.redirect(installUrl);
+  }else{
+    return res.status(400).send('Something went wrong. Double check that you entered your shop correctly.');
+  }
+});
