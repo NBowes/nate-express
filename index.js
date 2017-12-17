@@ -53,8 +53,18 @@ app.get('/callback',(req,res)=>{
     if (digest !== hmac){
       return res.status(400).send('hmac not validated');
     }
-    res.status(200).send('hmac validated!');
+    const url = `https://${shop}/admin/oauth/access_token`;
+    const payload = {
+      client_id: apiKey,
+      client_secret: apiSecret,
+      code
+    };
+    
+    request.post(url,{json: payload}).then((aTokenResponse)=>{
+      const accessToken = aTokenResponse.access_token;
 
+      res.status(200).send("Access token set!");
+    });
   }else {
     return res.status(400).send('Missing required parameters.')
   }
