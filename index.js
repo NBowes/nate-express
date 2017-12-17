@@ -10,7 +10,7 @@ const request = require('request-promise');
 const apiKey = process.env.SHOPIFY_API_KEY;
 const apiSecret = process.env.SHOPIFY_API_SECRET;
 const scopes = 'write_products';
-const appURL = 'https://ce2f91e6.ngrok.io';
+const appURL = 'https://c7abe1c0.ngrok.io';
 
 app.get('/', (req,res) => {
   res.send("App working");
@@ -46,5 +46,16 @@ app.get('/callback',(req,res)=>{
     const map = Object.assign({}, req.query)
     delete map['hmac'];
     delete map['signature'];
+
+    const message = querystring.stringify(map);
+    const digest = crypto.createHmac('sha256', apiSecret).update(message).digest('hex');
+
+    if (digest !== hmac){
+      return res.status(400).send('hmac not validated');
+    }
+    res.status(200).send('hmac validated!');
+
+  }else {
+    return res.status(400).send('Missing required parameters.')
   }
 });
