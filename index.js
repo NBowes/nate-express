@@ -10,21 +10,22 @@ const request = require('request-promise');
 const apiKey = process.env.SHOPIFY_API_KEY;
 const apiSecret = process.env.SHOPIFY_API_SECRET;
 const scopes = 'write_products';
-const appURL = 'https://c7abe1c0.ngrok.io';
+const appURL = 'https://d521d9df.ngrok.io';
 
-app.get('/', (req,res) => {
-  res.send("App working");
+app.set('view engine', 'ejs');
+app.get('/',(req,res)=>{
+  res.render('index');
 });
 
 app.listen('4567',() =>{
   console.log('App listening on 4567!');
-})
+});
 
 app.get('/install', (req,res) =>{
   const shop = req.query.shop;
   if(shop){
     const state = nonce();
-    const scope = 'write_products';
+    const scope = 'write_customers';
     const redirectUri = `${appURL}/callback`
     const installUrl = `https://${shop}/admin/oauth/authorize?client_id=${apiKey}\
                         &scope=${scope}&state=${state}&redirect_uri=${redirectUri}`
@@ -63,9 +64,12 @@ app.get('/callback',(req,res)=>{
     request.post(url,{json: payload}).then((aTokenResponse)=>{
       const accessToken = aTokenResponse.access_token;
 
-      res.status(200).send("Access token set!");
+    })
+    .catch((error) => {
+      res.status(error.statusCode).send(error.error.error_description);
     });
   }else {
     return res.status(400).send('Missing required parameters.')
   }
+  res.redirect('/');
 });
